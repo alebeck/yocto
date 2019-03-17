@@ -1,7 +1,6 @@
-[package]
-name = "kiki"
-version = "0.1.0"
-authors = ["Alexander Becker <alexander.becker@tum.de>"]
-edition = "2018"
+[workspace]
 
-[dependencies]
+members = [
+    "cicada",
+    "logger",
+]
