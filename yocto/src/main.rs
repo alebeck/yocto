@@ -6,15 +6,15 @@
 #[macro_use]
 extern crate log;
 
-use cicada::{args, logo};
+use yocto::{args, logo};
 
 fn main() {
     let config = args::get();
 
-    println!("{}", logo::LOGO);
-    println!("  Cicada {} - (c) 2019\n", config.version);
+    print!("{}", logo::LOGO);
+    println!(" yocto {} - (c) 2019\n", config.version);
 
     logger::init_level(config.log_level).unwrap();
 
-    cicada::run(config);
+    yocto::run(config);
 }

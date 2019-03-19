@@ -18,12 +18,21 @@ use chashmap::{CHashMap};
 use std::str::FromStr;
 
 type Result<T> = result::Result<T, Box<error::Error>>;
+type Response = Result<Option<String>>;
 
 //const SEP: char = '\u{001f}';
 const SEP: char = ' ';
 
 #[derive(Debug, Clone)]
 struct ParseError;
+
+#[derive(Debug, Clone)]
+struct StorageError(String);
+
+enum Command {
+    GET {key: String},
+    INSERT {key: String, value: String}
+}
 
 impl fmt::Display for ParseError {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
@@ -41,14 +50,20 @@ impl error::Error for ParseError {
     }
 }
 
-enum Command {
-    GET {key: String},
-    INSERT {key: String, value: String}
+impl fmt::Display for StorageError {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        write!(f, "{}", self.0)
+    }
 }
 
-enum Response {
-    OK (Option<String>),
-    ERR (Option<String>)
+impl error::Error for StorageError {
+    fn description(&self) -> &str {
+        self.0.as_ref()
+    }
+
+    fn cause(&self) -> Option<&error::Error> {
+        None
+    }
 }
 
 impl FromStr for Command {
@@ -79,15 +94,21 @@ impl FromStr for Command {
     }
 }
 
-impl ToString for Response {
-    fn to_string(&self) -> String {
-        match self {
-            Response::OK(msg) => {
-                "ok".to_string()
-            },
-            Response::ERR(msg) => {
-                "err".to_string()
+fn serialize(response: Response) -> String {
+    match response {
+        Ok(message) => {
+            let mut string = "OK".to_string();
+            if let Some(v) = message {
+                string.push(SEP);
+                string.push_str(&v);
             }
+            string
+        },
+        Err(e) => {
+            let mut string = "ERR".to_string();
+            string.push(SEP);
+            string.push_str(&format!("{}", e));
+            string
         }
     }
 }
@@ -114,11 +135,19 @@ pub fn run(config: args::Config) {
 
     for stream in listener.incoming() {
         match stream {
-            Ok(stream) => {
+            Ok(mut stream) => {
                 let map = Arc::clone(&map);
 
-                pool.assign(|| {
-                    handle_request(stream, map);
+                pool.assign(move || {
+                    let response = handle_request(&mut stream, map);
+
+                    if let Err(e) = write_response(&mut stream, if let Err(e) = response {
+                        error!("{}", e);
+                        Err(e)
+                    } else { response }) {
+                        error!("{}", e);
+                    }
+
                 });
             },
 
@@ -130,7 +159,7 @@ pub fn run(config: args::Config) {
     }
 }
 
-fn handle_request(mut stream: TcpStream, map: Arc<CHashMap<String, String>>) -> Result<()> {
+fn handle_request(stream: &mut TcpStream, map: Arc<CHashMap<String, String>>) -> Response {
     let mut buffer = Vec::new();
     stream.read_to_end(&mut buffer)?;
     let string = String::from_utf8(buffer)?;
@@ -138,35 +167,31 @@ fn handle_request(mut stream: TcpStream, map: Arc<CHashMap<String, String>>) -> 
     debug!("{}", string);
 
     let command = string.parse()?;
-    let response = execute(command, map);
-
-    write_response(&mut stream, response)?;
-
-    Ok(())
+    execute(command, map)
 }
 
 fn execute(command: Command, map: Arc<CHashMap<String, String>>) -> Response {
     match command {
         Command::GET {key} => {
             if let Some(rg) =  map.get(&key) {
-                Response::OK(Some(rg.to_string()))
+                Ok(Some(rg.to_string()))
             } else {
-                Response::ERR(Some("Key not found.".to_string()))
+                Err(Box::new(StorageError(format!("Key not found: {}", key))))
             }
         },
 
         Command::INSERT {key, value} => {
             if let Some(old) = map.insert(key, value) {
-                Response::OK(Some(old))
+                Ok(Some(old))
             } else {
-                Response::OK(None)
+                Ok(None)
             }
         }
     }
 }
 
-fn write_response(stream: &mut TcpStream, response: impl ToString) -> Result<()> {
-    stream.write(response.to_string().as_bytes())?;
+fn write_response(stream: &mut TcpStream, response: Response) -> Result<()> {
+    stream.write(serialize(response).as_bytes())?;
     stream.flush()?;
     Ok(())
 }
