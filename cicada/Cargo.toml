@@ -5,8 +5,7 @@ authors = ["Alexander Becker <alexander.becker@tum.de>"]
 edition = "2018"
 
 [dependencies]
-spinner = "0.4.0"
 chashmap = "2.2.2"
 clap = "2.32.0"
 logger = { path = "../logger/"}
-log="0.4"
+log = "0.3.0"
