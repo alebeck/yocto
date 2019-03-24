@@ -3,9 +3,6 @@
 // Released under the MIT license.
 //
 
-#[macro_use]
-extern crate log;
-
 use yocto::{args, logo};
 
 fn main() {

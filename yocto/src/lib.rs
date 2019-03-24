@@ -9,88 +9,99 @@ extern crate log;
 pub mod args;
 pub mod logo;
 mod threadp;
+mod error;
 
 use std::io::prelude::*;
 use std::net::{TcpListener, TcpStream};
-use std::{thread, process, io, result, error, fmt};
+use std::{process, result, str, io};
 use std::sync::Arc;
 use chashmap::{CHashMap};
-use std::str::FromStr;
 
-type Result<T> = result::Result<T, Box<error::Error>>;
+type Result<T> = result::Result<T, Box<std::error::Error>>;
 type Response = Result<Option<String>>;
+type Command = Box<Fn(Arc<CHashMap<String, String>>) -> Response>;
 
-//const SEP: char = '\u{001f}';
-const SEP: char = ' ';
+const SEP: char = '\u{1f}';
 
-#[derive(Debug, Clone)]
-struct ParseError;
+fn parse_command(string: String) -> Result<Command> {
+    let split: Vec<String> = string.split(SEP).map(|s| s.to_string()).collect();
 
-#[derive(Debug, Clone)]
-struct StorageError(String);
+    match split[0].as_ref() {
 
-enum Command {
-    GET {key: String},
-    INSERT {key: String, value: String}
-}
+        // Locates the given key inside the database and returns an Ok with the
+        // corresponding value if existing or an Err if not.
+        "GET" => {
+            if split.len() != 2 {
+                Err(Box::new(error::ParseError))
+            } else {
+                Ok(Box::new(move |map| {
+                    if let Some(rg) = map.get(&split[1]) {
+                        Ok(Some(rg.to_string()))
+                    } else {
+                        Err(Box::new(error::StorageError(format!("Key not found: {}", split[1]))))
+                    }
+                }))
+            }
+        },
 
-impl fmt::Display for ParseError {
-    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        write!(f, "Unable to parse command")
-    }
-}
+        // Inserts a specified value at a specified key. Return the old value if existent.
+        "INSERT" => {
+            if split.len() != 3 {
+                Err(Box::new(error::ParseError))
+            } else {
+                Ok(Box::new(move |map| {
+                    if let Some(old) = map.insert(split[1].clone(), split[2].clone()) {
+                        Ok(Some(old))
+                    } else {
+                        Ok(None)
+                    }
+                }))
+            }
+        },
 
-impl error::Error for ParseError {
-    fn description(&self) -> &str {
-        "Unable to parse command"
-    }
+        // Removes the value corresponding to a key. Returns Err if key is not found.
+        "REMOVE" => {
+            if split.len() != 2 {
+                Err(Box::new(error::ParseError))
+            } else {
+                Ok(Box::new(move |map| {
+                    if let Some(old) = map.remove(&split[1]) {
+                        Ok(Some(old))
+                    } else {
+                        Err(Box::new(error::StorageError(format!("Key not found: {}", split[1]))))
+                    }
+                }))
+            }
+        },
 
-    fn cause(&self) -> Option<&error::Error> {
-        None
-    }
-}
+        // Returns Ok("TRUE") if database contains a specified key, and Ok("FALSE") if not.
+        "CONTAINS" => {
+            if split.len() != 2 {
+                Err(Box::new(error::ParseError))
+            } else {
+                Ok(Box::new(move |map| {
+                    if map.contains_key(&split[1]) {
+                        Ok(Some("TRUE".to_string()))
+                    } else {
+                        Ok(Some("FALSE".to_string()))
+                    }
+                }))
+            }
+        },
 
-impl fmt::Display for StorageError {
-    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        write!(f, "{}", self.0)
-    }
-}
+        // Removes all entries from the database.
+        "CLEAR" => {
+            if split.len() != 1 {
+                Err(Box::new(error::ParseError))
+            } else {
+                Ok(Box::new(move |map| {
+                    map.clear();
+                    Ok(None)
+                }))
+            }
+        },
 
-impl error::Error for StorageError {
-    fn description(&self) -> &str {
-        self.0.as_ref()
-    }
-
-    fn cause(&self) -> Option<&error::Error> {
-        None
-    }
-}
-
-impl FromStr for Command {
-    type Err = Box<error::Error>;
-
-    fn from_str(string: &str) -> Result<Command> {
-        let split: Vec<&str> = string.split(SEP).collect();
-
-        match split[0] {
-            "GET" => {
-                if split.len() != 2 {
-                    Err(Box::new(ParseError))
-                } else {
-                    Ok(Command::GET {key: split[1].to_string()})
-                }
-            },
-
-            "INSERT" => {
-                if split.len() != 3 {
-                    Err(Box::new(ParseError))
-                } else {
-                    Ok(Command::INSERT {key: split[1].to_string(), value: split[2].to_string()})
-                }
-            },
-
-            _ => Err(Box::new(ParseError))
-        }
+        _ => Err(Box::new(error::ParseError))
     }
 }
 
@@ -104,6 +115,7 @@ fn serialize(response: Response) -> String {
             }
             string
         },
+
         Err(e) => {
             let mut string = "ERR".to_string();
             string.push(SEP);
@@ -111,6 +123,25 @@ fn serialize(response: Response) -> String {
             string
         }
     }
+}
+
+fn handle_request(stream: &mut TcpStream, map: Arc<CHashMap<String, String>>) -> Response {
+    let mut buffer = [0; 512];
+    stream.read(&mut buffer)?;
+    let string = str::from_utf8(&buffer[..])?
+        .trim_end_matches(char::from(0))
+        .to_string();
+
+    debug!("{}", string);
+
+    let command: Command = parse_command(string)?;
+    command(map)
+}
+
+fn write_response(stream: &mut TcpStream, response: Response) -> Result<()> {
+    stream.write(serialize(response).as_bytes())?;
+    stream.flush()?;
+    Ok(())
 }
 
 pub fn run(config: args::Config) {
@@ -133,11 +164,16 @@ pub fn run(config: args::Config) {
     info!("Initialized thread pool with {} worker threads", config.threads);
     info!("Listening.");
 
-    for stream in listener.incoming() {
+    let iter: Box<dyn Iterator<Item=result::Result<TcpStream, io::Error>>> = if let Some(n) = config.exit_after {
+        Box::new(listener.incoming().take(n))
+    } else {
+        Box::new(listener.incoming())
+    };
+
+    for stream in iter {
         match stream {
             Ok(mut stream) => {
                 let map = Arc::clone(&map);
-
                 pool.assign(move || {
                     let response = handle_request(&mut stream, map);
 
@@ -147,7 +183,6 @@ pub fn run(config: args::Config) {
                     } else { response }) {
                         error!("{}", e);
                     }
-
                 });
             },
 
@@ -157,41 +192,4 @@ pub fn run(config: args::Config) {
             }
         };
     }
-}
-
-fn handle_request(stream: &mut TcpStream, map: Arc<CHashMap<String, String>>) -> Response {
-    let mut buffer = Vec::new();
-    stream.read_to_end(&mut buffer)?;
-    let string = String::from_utf8(buffer)?;
-
-    debug!("{}", string);
-
-    let command = string.parse()?;
-    execute(command, map)
-}
-
-fn execute(command: Command, map: Arc<CHashMap<String, String>>) -> Response {
-    match command {
-        Command::GET {key} => {
-            if let Some(rg) =  map.get(&key) {
-                Ok(Some(rg.to_string()))
-            } else {
-                Err(Box::new(StorageError(format!("Key not found: {}", key))))
-            }
-        },
-
-        Command::INSERT {key, value} => {
-            if let Some(old) = map.insert(key, value) {
-                Ok(Some(old))
-            } else {
-                Ok(None)
-            }
-        }
-    }
-}
-
-fn write_response(stream: &mut TcpStream, response: Response) -> Result<()> {
-    stream.write(serialize(response).as_bytes())?;
-    stream.flush()?;
-    Ok(())
 }

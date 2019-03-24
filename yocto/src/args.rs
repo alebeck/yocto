@@ -3,14 +3,16 @@
 // Released under the MIT license.
 //
 
-use clap::{Arg, ArgMatches, App, SubCommand};
+use clap::{Arg, App};
 use log::LogLevelFilter;
 
 pub struct Config {
     pub threads: usize,
     pub version: String,
     pub iface: String,
-    pub log_level: LogLevelFilter
+    pub log_level: LogLevelFilter,
+    // used for testing
+    pub exit_after: Option<usize>
 }
 
 pub fn get() -> Config {
@@ -26,7 +28,7 @@ pub fn get() -> Config {
             .short("i")
             .long("iface")
             .takes_value(true)
-            .help("IP address and port, default 127.0.0.1:7000"))
+            .help("IP address and port, default 127.0.0.1:7001"))
 
         .arg(Arg::with_name("verbose")
             .short("v")
@@ -38,11 +40,12 @@ pub fn get() -> Config {
     Config {
         threads: matches.value_of("threads").unwrap_or("4").parse().unwrap(),
         version: env!("CARGO_PKG_VERSION").to_string(),
-        iface: matches.value_of("iface").unwrap_or("127.0.0.1:7000").to_string(),
+        iface: matches.value_of("iface").unwrap_or("127.0.0.1:7001").to_string(),
         log_level: if matches.is_present("verbose") {
             LogLevelFilter::Debug
         } else {
             LogLevelFilter::Info
-        }
+        },
+        exit_after: None
     }
 }
