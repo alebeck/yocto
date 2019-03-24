@@ -3,7 +3,7 @@ name: default
 
 steps:
   - name: test
-    image: rust:1.30
+    image: rust:1.33
     commands:
       - cargo build --verbose --all
       - cargo test --verbose --all -- --test-threads=1
