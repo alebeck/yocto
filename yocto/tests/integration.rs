@@ -10,7 +10,6 @@ use std::thread::{self, JoinHandle};
 use std::time::Duration;
 use std::net::TcpStream;
 use std::str;
-use bufstream::BufStream;
 
 const SEP: char = '\u{1f}';
 
