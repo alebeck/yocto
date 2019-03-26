@@ -1,6 +1,6 @@
 # yocto
 
-Yocto is a minimal key-value store built for fast and reliable state exchange between applications. It's written with an emphasis on reliability, speed and ease-to-use.
+Yocto is a minimalistic key-value store built for fast and reliable state exchange between applications. It's written with an emphasis on reliability, speed and ease-to-use.
 
 ## Usage
 
