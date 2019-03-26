@@ -1,6 +1,6 @@
 # yocto
 
-Yocto is a minimal key-value store built for fast and reliable data exchange between applications. It's written with an emphasis on security, speed and ease-to-use.
+Yocto is a minimal key-value store built for fast and reliable data exchange between applications. It's written with an emphasis on reliability, speed and ease-to-use.
 
 ## Usage
 
@@ -17,7 +17,7 @@ docker run -d -p <host_port>:7001 yocto
 
 Following environment variables can be passed:
 
-- `YOCTO_THREADS`: Number of thread, defaults to `4`
+- `YOCTO_THREADS`: Number of threads, defaults to `4`
 - `YOCTO_VERBOSE`: Show debug logs
 
 
