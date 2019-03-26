@@ -26,6 +26,7 @@ Following environment variables can be passed:
 Pull the repository and execute 
 
 ```
+cargo test -- --test-threads=1
 cargo build --release
 cargo install
 ```
