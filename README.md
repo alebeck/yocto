@@ -8,12 +8,18 @@ You can use yocto either by manually building it from source or via Docker.
 
 ### Docker 
 
-Run
+In the below snipped, replace `<host_port>` with the port you want yocto to bind to:
 
 ```
 docker pull yocto:latest
-docker run -d -p 7001:7001 yocto
+docker run -d -p <host_port>:7001 yocto
 ```
+
+Following environment variables can be passed:
+
+- `YOCTO_THREADS`: Number of thread, defaults to `4`
+- `YOCTO_VERBOSE`: Show debug logs
+
 
 ### Build from source
 
