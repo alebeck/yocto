@@ -1,5 +1,7 @@
 # yocto
 
+[![Build Status](https://ci.alexbe.dev/api/badges/alebeck/yocto/status.svg)](https://ci.alexbe.dev/alebeck/yocto)
+
 Yocto is a minimalistic key-value store built for fast and reliable state exchange between applications. It's written with an emphasis on reliability, speed and ease-to-use.
 
 ## Usage
