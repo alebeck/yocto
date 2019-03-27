@@ -14,6 +14,13 @@ use std::str;
 const SEP: char = '\u{1f}';
 
 #[test]
+fn heartbeat() {
+    bootstrap(1);
+    let res = send("HEARTBEAT".to_string());
+    assert_ok(res, None);
+}
+
+#[test]
 fn invalid_command() {
     bootstrap(1);
     let res = send("TEST".to_string());

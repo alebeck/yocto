@@ -28,6 +28,10 @@ fn parse_command(string: String) -> Result<Command> {
 
     match split[0].as_ref() {
 
+        "HEARTBEAT" => {
+            Ok(Box::new(|_| Ok(None)))
+        },
+
         // Locates the given key inside the database and returns an Ok with the
         // corresponding value if existing or an Err if not.
         "GET" => {
