@@ -2,6 +2,7 @@
 
 [![Build Status](https://cloud.drone.io/api/badges/alebeck/yocto/status.svg)](https://cloud.drone.io/alebeck/yocto)
 [![](https://images.microbadger.com/badges/version/alebeck/yocto.svg)](https://microbadger.com/images/alebeck/yocto)
+[![](https://images.microbadger.com/badges/image/alebeck/yocto.svg)](https://microbadger.com/images/alebeck/yocto)
 
 Yocto is a minimalistic key-value store built for fast and reliable state exchange between applications. It's written with an emphasis on reliability, speed and ease-to-use.
 
