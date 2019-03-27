@@ -12,11 +12,6 @@ steps:
       - cargo build --verbose --all
       - cargo test --verbose --all -- --test-threads=1
 
-  - name: build
-    image: rust:1.33
-    commands:
-      - cargo build --release
-
   - name: containerize
     image: plugins/docker
     settings:
