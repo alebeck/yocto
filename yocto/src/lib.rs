@@ -130,7 +130,7 @@ fn serialize(response: Response) -> String {
 }
 
 fn handle_request(stream: &mut TcpStream, map: Arc<CHashMap<String, String>>) -> Response {
-    let mut buffer = [0; 512];
+    let mut buffer = [0; 524288];
     stream.read(&mut buffer)?;
     let string = str::from_utf8(&buffer[..])?
         .trim_end_matches(char::from(0))
