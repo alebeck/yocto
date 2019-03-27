@@ -1,10 +1,16 @@
 # yocto
 
 [![Build Status](https://cloud.drone.io/api/badges/alebeck/yocto/status.svg)](https://cloud.drone.io/alebeck/yocto)
-[![](https://images.microbadger.com/badges/version/alebeck/yocto.svg)](https://microbadger.com/images/alebeck/yocto)
-[![](https://images.microbadger.com/badges/image/alebeck/yocto.svg)](https://microbadger.com/images/alebeck/yocto)
+[![](https://images.microbadger.com/badges/version/alebeck/yocto.svg)](https://hub.docker.com/r/alebeck/yocto)
+[![](https://images.microbadger.com/badges/image/alebeck/yocto.svg)](https://hub.docker.com/r/alebeck/yocto)
 
 Yocto is a minimalistic key-value store built for fast and reliable state exchange between applications. It's written with an emphasis on reliability, speed and ease-to-use.
+
+## Features
+
+- Uses a concurrent hash map as main data structure to allow multiple threads. Blocks only if the same bucket is accessed by at least one write operation.
+- Allows `get`, `insert`, `remove`, `contains` and `clear` operations. More to come.
+- Can be deployed seamlessly with Docker.
 
 ## Usage
 
@@ -22,7 +28,8 @@ docker run -d -p <host_port>:7001 yocto
 Following environment variables can be passed:
 
 - `YOCTO_THREADS`: Number of threads, defaults to `4`
-- `YOCTO_VERBOSE`: Show debug logs
+- `YOCTO_BIND`: IP address and port to bind to inside the docker image, defaults to `0.0.0.0:7001`
+- `YOCTO_VERBOSE`: Show debug logs, default `false`
 
 
 ### Build from source
