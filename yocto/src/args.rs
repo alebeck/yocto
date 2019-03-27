@@ -16,7 +16,7 @@ pub struct Config {
 }
 
 pub fn get() -> Config {
-    let matches = App::new("cicada: minimalistic in-memory key value store")
+    let matches = App::new("yocto: minimalistic in-memory key value store")
 
         .arg(Arg::with_name("threads")
             .short("t")
