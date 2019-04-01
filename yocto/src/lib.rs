@@ -48,7 +48,7 @@ fn parse_command(string: String) -> Result<Command> {
             }
         },
 
-        // Inserts a specified value at a specified key. Return the old value if existent.
+        // Inserts a specified value at a specified key. Return the old value if existing.
         "INSERT" => {
             if split.len() != 3 {
                 Err(Box::new(error::ParseError))
@@ -73,21 +73,6 @@ fn parse_command(string: String) -> Result<Command> {
                         Ok(Some(old))
                     } else {
                         Err(Box::new(error::StorageError(format!("Key not found: {}", split[1]))))
-                    }
-                }))
-            }
-        },
-
-        // Returns Ok("TRUE") if database contains a specified key, and Ok("FALSE") if not.
-        "CONTAINS" => {
-            if split.len() != 2 {
-                Err(Box::new(error::ParseError))
-            } else {
-                Ok(Box::new(move |map| {
-                    if map.contains_key(&split[1]) {
-                        Ok(Some("TRUE".to_string()))
-                    } else {
-                        Ok(Some("FALSE".to_string()))
                     }
                 }))
             }

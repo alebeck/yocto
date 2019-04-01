@@ -104,21 +104,6 @@ fn remove_unknown() {
 }
 
 #[test]
-fn contains() {
-    bootstrap(2);
-    let _ = send(format!("INSERT{}key{}value", SEP, SEP));
-    let res = send(format!("CONTAINS{}key", SEP));
-    assert_ok(res, Some("TRUE".to_string()));
-}
-
-#[test]
-fn contains_unknown() {
-    bootstrap(1);
-    let res = send(format!("CONTAINS{}key", SEP));
-    assert_ok(res, Some("FALSE".to_string()));
-}
-
-#[test]
 fn clear() {
     bootstrap(2);
     let _ = send(format!("INSERT{}key{}value", SEP, SEP));
@@ -154,7 +139,7 @@ fn send(request: String) -> String {
 
     str::from_utf8(&buffer[..])
         .unwrap()
-        .trim_right_matches(char::from(0))
+        .trim_end_matches(char::from(0))
         .to_string()
 }
 
