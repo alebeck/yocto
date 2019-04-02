@@ -9,7 +9,7 @@ Yocto is a minimalistic key-value store built for fast and reliable state exchan
 ## Features
 
 - Uses a concurrent hash map as main data structure to allow multiple threads. Blocks only if the same bucket is accessed by at least one write operation.
-- Allows `get`, `insert`, `remove`, `contains` and `clear` operations. More to come.
+- Allows `get`, `insert`, `remove` and `clear` operations. More to come.
 - Can be deployed seamlessly with Docker.
 
 ## Usage
