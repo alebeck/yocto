@@ -6,7 +6,7 @@
 use yocto::args::Config;
 use std::io::prelude::*;
 use log::LogLevelFilter;
-use std::thread::{self, JoinHandle};
+use std::thread;
 use std::time::Duration;
 use std::net::TcpStream;
 use std::str;
@@ -114,7 +114,6 @@ fn clear() {
 fn bootstrap(exit_after: usize) {
     let config = Config {
         threads: 1,
-        version: "0.0.0".to_string(),
         iface: "127.0.0.1:7002".to_string(),
         log_level: LogLevelFilter::Error,
         exit_after: Some(exit_after)

@@ -9,7 +9,7 @@ fn main() {
     let config = args::get();
 
     print!("{}", logo::LOGO);
-    println!(" yocto {} - (c) 2019\n", config.version);
+    println!(" yocto {} - (c) 2019\n", env!("CARGO_PKG_VERSION"));
 
     logger::init_level(config.log_level).unwrap();
 

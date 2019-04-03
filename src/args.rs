@@ -8,7 +8,6 @@ use log::LogLevelFilter;
 
 pub struct Config {
     pub threads: usize,
-    pub version: String,
     pub iface: String,
     pub log_level: LogLevelFilter,
     // used for testing
@@ -39,7 +38,6 @@ pub fn get() -> Config {
 
     Config {
         threads: matches.value_of("threads").unwrap_or("4").parse().unwrap(),
-        version: env!("CARGO_PKG_VERSION").to_string(),
         iface: matches.value_of("iface").unwrap_or("127.0.0.1:7001").to_string(),
         log_level: if matches.is_present("verbose") {
             LogLevelFilter::Debug
