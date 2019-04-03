@@ -15,7 +15,7 @@ steps:
         from_secret: crates_token
     commands:
       - cargo package
-      - cargo publish --token ${TOKEN}
+      - cargo publish --token $TOKEN
 
   - name: containerize
     image: plugins/docker
