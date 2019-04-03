@@ -1,7 +1,10 @@
 [package]
 name = "yocto"
-version = "0.0.1"
+description = "A minimal, memory-only data store"
+version = "0.1.0"
 authors = ["Alexander Becker"]
+license = "MIT"
+repository = "https://github.com/alebeck/yocto"
 edition = "2018"
 
 [dependencies]
