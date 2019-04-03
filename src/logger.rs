@@ -4,6 +4,8 @@
 //! function instead of from an environment variable.
 //!
 //! It also supports falling back to a non-colored logger.
+//!
+//! Taken from https://github.com/remexre/pretty_logger
 
 #![deny(missing_docs)]
 

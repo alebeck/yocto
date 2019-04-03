@@ -3,7 +3,7 @@
 // Released under the MIT license.
 //
 
-use yocto::{args, logo};
+use yocto::{args, logo, logger};
 
 fn main() {
     let config = args::get();

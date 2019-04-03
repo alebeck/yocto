@@ -8,6 +8,7 @@ extern crate log;
 
 pub mod args;
 pub mod logo;
+pub mod logger;
 mod threadp;
 mod error;
 

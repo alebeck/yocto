@@ -1,6 +1,13 @@
-[workspace]
+[package]
+name = "yocto"
+version = "0.0.1"
+authors = ["Alexander Becker"]
+edition = "2018"
 
-members = [
-    "yocto",
-    "logger",
-]
+[dependencies]
+chashmap = "2.2.2"
+clap = "2.32.0"
+log = "0.3.0"
+ansi_term = "0.10.0"
+isatty = "0.1.3"
+unicode-segmentation = "1.2.0"
