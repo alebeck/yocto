@@ -8,6 +8,15 @@ steps:
       - cargo build --verbose --all
       - cargo test --verbose --all -- --test-threads=1
 
+  - name: publish
+    image: rust:1.33
+    environment:
+      TOKEN:
+        from_secret: crates_token
+    commands:
+      - cargo package
+      - cargo publish --token ${TOKEN}
+
   - name: containerize
     image: plugins/docker
     settings:
