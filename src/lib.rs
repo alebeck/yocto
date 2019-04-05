@@ -134,6 +134,12 @@ fn write_response(stream: &mut TcpStream, response: Response) -> Result<()> {
     Ok(())
 }
 
+/// Runs a new instance of yocto
+///
+/// # Arguments
+///
+/// * `config` - A config struct specifying the run parameters
+///
 pub fn run(config: args::Config) {
     let listener = match TcpListener::bind(&config.iface) {
         Ok(l) => {
