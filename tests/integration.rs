@@ -14,13 +14,6 @@ use std::str;
 const SEP: char = '\u{1f}';
 
 #[test]
-fn heartbeat() {
-    bootstrap(1);
-    let res = send("HEARTBEAT".to_string());
-    assert_ok(res, None);
-}
-
-#[test]
 fn invalid_command() {
     bootstrap(1);
     let res = send("TEST".to_string());
@@ -109,6 +102,13 @@ fn clear() {
     let _ = send(format!("INSERT{}key{}value", SEP, SEP));
     let res = send(format!("GET{}key", SEP));
     assert_ok(res, Some("value".to_string()));
+}
+
+#[test]
+fn test() {
+    bootstrap(1);
+    let res = send("TEST".to_string());
+    assert_ok(res, None);
 }
 
 fn bootstrap(exit_after: usize) {

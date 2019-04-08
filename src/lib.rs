@@ -29,7 +29,7 @@ fn parse_command(string: String) -> Result<Command> {
 
     match split[0].as_ref() {
 
-        "HEARTBEAT" => {
+        "TEST" => {
             Ok(Box::new(|_| Ok(None)))
         },
 
