@@ -22,7 +22,7 @@ You can use yocto either via Docker, by building it from source or programmatica
 In the below snipped, replace `<host_port>` with the port you want yocto to bind to:
 
 ```
-docker run -d -p <host_port>:7001 alebeck/yocto
+docker run -p <host_port>:7001 alebeck/yocto
 ```
 
 Following environment variables can be passed:
