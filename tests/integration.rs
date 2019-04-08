@@ -16,7 +16,7 @@ const SEP: char = '\u{1f}';
 #[test]
 fn invalid_command() {
     bootstrap(1);
-    let res = send("TEST".to_string());
+    let res = send("ABCDE".to_string());
     assert_error(res);
 }
 
