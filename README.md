@@ -49,7 +49,7 @@ cargo install
 ### Via crates.io
 
 Add yocto to your dependencies and use it like that:
-```
+```rust
 use yocto::args::Config;
 
 let config = Config {
