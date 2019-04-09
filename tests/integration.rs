@@ -38,7 +38,7 @@ fn invalid_number_args_2() {
 fn unknown_key() {
     bootstrap(1);
     let res = send(format!("GET{}key", SEP));
-    assert_error(res);
+    assert_ok(res, None);
 }
 
 #[test]

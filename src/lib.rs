@@ -34,7 +34,7 @@ fn parse_command(string: String) -> Result<Command> {
         },
 
         // Locates the given key inside the database and returns an Ok with the
-        // corresponding value if existing or an Err if not.
+        // corresponding value if existing or an None if not.
         "GET" => {
             if split.len() != 2 {
                 Err(Box::new(error::ParseError))
@@ -43,7 +43,7 @@ fn parse_command(string: String) -> Result<Command> {
                     if let Some(rg) = map.get(&split[1]) {
                         Ok(Some(rg.to_string()))
                     } else {
-                        Err(Box::new(error::StorageError(format!("Key not found: {}", split[1]))))
+                        Ok(None)
                     }
                 }))
             }
